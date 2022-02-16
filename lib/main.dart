@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:state_management_examples/NavObserver.dart';
-import 'package:state_management_examples/analystic_bloc_observer.dart';
-import 'package:state_management_examples/bloc_dir/my_cubit.dart';
+import 'package:state_management_examples/analytics/analytics_bloc_observer.dart';
+import 'package:state_management_examples/analytics/analytics_navigation_observer.dart';
+import 'package:state_management_examples/bloc_dir/text_input_bloc.dart';
 import 'package:state_management_examples/routes/SecondRoute.dart';
 
 void main() {
@@ -20,25 +20,42 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TextInputCubit>(
-      create: (context) => TextInputCubit(),
+    return BlocProvider<TextInputBloc>(
+      create: (context) => TextInputBloc(),
       child: MaterialApp(
-        navigatorObservers: [NavObserver()],
+        navigatorObservers: [AnalyticsNavigationObserver()],
         home: Scaffold(
           appBar: AppBar(
-            // title: MyTextTitle(),
-            title: BlocBuilder<TextInputCubit, TextInputState>(
-              builder: (context, state) => Text(state.theText),
-            ),
+            title: NewWidget(),
           ),
           body: Column(
             children: [
               Level1(),
+              MySubmitButton(),
               MyNavButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class NewWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text(context.select((TextInputBloc bloc) => bloc.state.text));
+  }
+}
+
+class MySubmitButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        context.read<TextInputBloc>().add(TextInputEventOnSubmitted());
+      },
+      child: Text('Submit'),
     );
   }
 }
@@ -53,7 +70,7 @@ class MyNavButton extends StatelessWidget {
           MaterialPageRoute(builder: (context) => SecondRoute()),
         );
       },
-      child: Icon(Icons.arrow_forward),
+      child: Text('Next Screen'),
     );
   }
 }
@@ -83,18 +100,35 @@ class Level3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: BlocBuilder<TextInputCubit, TextInputState>(
-        builder: (context, state) => Text(state.theText),
-      ),
+      child: Text(context.select((TextInputBloc bloc) => bloc.state.text)),
     );
   }
 }
 
 class MyTextField extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return TextField(onChanged: (String newValue) {
-      context.read<TextInputCubit>().updateText(newValue);
-    });
+    // TODO: Wrap in BlocBuilder and listen for TextSubmitted state
+    return BlocListener<TextInputBloc, TextInputState>(
+      listener: (context, state) {
+        if (state is TextInputStateSubmitted) {
+          _controller.clear();
+        }
+      },
+      child: TextField(
+        textAlign: TextAlign.center,
+        controller: _controller,
+        onChanged: (String newValue) {
+          context.read<TextInputBloc>().add(
+                TextInputEventOnChanged(newValue),
+              );
+        },
+        onSubmitted: (String value) {
+          context.read<TextInputBloc>().add(TextInputEventOnSubmitted());
+        },
+      ),
+    );
   }
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NavObserver<R extends Route<dynamic>> extends RouteObserver<R> {
-  NavObserver();
-
+class AnalyticsNavigationObserver<R extends Route<dynamic>>
+    extends RouteObserver<R> {
   @override
   void didPush(Route route, Route previousRoute) {
     print('didPush ${route.runtimeType}');
