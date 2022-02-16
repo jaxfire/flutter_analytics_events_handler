@@ -38,7 +38,8 @@ class MyTextField extends StatelessWidget {
               );
         },
         onSubmitted: (String value) {
-          context.read<TextInputBloc>().add(TextInputEventOnSubmitted());
+          context.read<TextInputBloc>().add(
+              TextInputEventOnSubmitted(context.read<TextInputBloc>().text));
         },
       ),
     );
@@ -59,7 +60,9 @@ class SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        context.read<TextInputBloc>().add(TextInputEventOnSubmitted());
+        context.read<TextInputBloc>().add(
+              TextInputEventOnSubmitted(context.read<TextInputBloc>().text),
+            );
       },
       child: Text('Submit'),
     );

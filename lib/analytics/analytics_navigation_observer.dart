@@ -1,31 +1,46 @@
 import 'package:flutter/material.dart';
 
+import '../injection_container.dart';
+import 'analytics_engine.dart';
+
 class AnalyticsNavigationObserver<R extends Route<dynamic>>
     extends RouteObserver<R> {
+  AnalyticsEngine _analyticsEngine = getIt<AnalyticsEngine>();
+
   @override
-  void didPush(Route route, Route previousRoute) {
-    print('didPush ${route.runtimeType}');
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _analyticsEngine.handleEvent(
+      AnalyticsViewEvent(
+        to: route.runtimeType,
+        from: previousRoute?.runtimeType,
+      ),
+    );
     super.didPush(route, previousRoute);
   }
 
   @override
-  void didPop(Route route, Route previousRoute) {
-    print('didPop ${route.runtimeType}');
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _analyticsEngine.handleEvent(
+      AnalyticsViewEvent(
+          to: route.runtimeType, from: previousRoute?.runtimeType),
+    );
     super.didPop(route, previousRoute);
   }
 
+/*
   @override
-  void didReplace({Route newRoute, Route oldRoute}) {
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
   }
 
   @override
-  void didRemove(Route route, Route previousRoute) {
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
   }
 
   @override
-  void didStartUserGesture(Route route, Route previousRoute) {
+  void didStartUserGesture(
+      Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didStartUserGesture(route, previousRoute);
   }
 
@@ -33,4 +48,5 @@ class AnalyticsNavigationObserver<R extends Route<dynamic>>
   void didStopUserGesture() {
     super.didStopUserGesture();
   }
+  */
 }

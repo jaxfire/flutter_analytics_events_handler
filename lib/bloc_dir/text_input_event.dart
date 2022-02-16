@@ -11,5 +11,6 @@ class TextInputEventOnChanged extends TextInputEvent {
 }
 
 class TextInputEventOnSubmitted extends TextInputEvent {
-  const TextInputEventOnSubmitted();
+  final String submittedText;
+  const TextInputEventOnSubmitted(this.submittedText);
 }
