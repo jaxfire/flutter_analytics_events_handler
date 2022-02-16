@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:state_management_examples/NavObserver.dart';
+import 'package:state_management_examples/analystic_bloc_observer.dart';
+import 'package:state_management_examples/bloc_dir/my_cubit.dart';
+import 'package:state_management_examples/routes/SecondRoute.dart';
 
-void main() => runApp(MyApp());
-
-class TheText extends ChangeNotifier {
-  String theText = 'Initial Text';
-
-  void updateText(String newText) {
-    theText = newText;
-    notifyListeners();
-  }
+void main() {
+  BlocOverrides.runZoned(
+    () => runApp(MyApp()),
+    blocObserver: AnalyticsBlocObserver(),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -18,28 +18,43 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  TheText theText;
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<TheText>(
-      create: (context) => TheText(),
+    return BlocProvider<TextInputCubit>(
+      create: (context) => TextInputCubit(),
       child: MaterialApp(
+        navigatorObservers: [NavObserver()],
         home: Scaffold(
           appBar: AppBar(
-            title: MyTextTitle(),
+            // title: MyTextTitle(),
+            title: BlocBuilder<TextInputCubit, TextInputState>(
+              builder: (context, state) => Text(state.theText),
+            ),
           ),
-          body: Level1(),
+          body: Column(
+            children: [
+              Level1(),
+              MyNavButton(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class MyTextTitle extends StatelessWidget {
+class MyNavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Text(Provider.of<TheText>(context).theText);
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SecondRoute()),
+        );
+      },
+      child: Icon(Icons.arrow_forward),
+    );
   }
 }
 
@@ -68,7 +83,9 @@ class Level3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text(Provider.of<TheText>(context).theText),
+      child: BlocBuilder<TextInputCubit, TextInputState>(
+        builder: (context, state) => Text(state.theText),
+      ),
     );
   }
 }
@@ -76,9 +93,8 @@ class Level3 extends StatelessWidget {
 class MyTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      onChanged: (String newValue) =>
-          Provider.of<TheText>(context, listen: false).updateText(newValue),
-    );
+    return TextField(onChanged: (String newValue) {
+      context.read<TextInputCubit>().updateText(newValue);
+    });
   }
 }
