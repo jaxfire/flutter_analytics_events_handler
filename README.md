@@ -1,4 +1,4 @@
 
-# State Management Example
+# Flutter seamless analytics
 
 
